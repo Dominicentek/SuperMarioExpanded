@@ -1,5 +1,5 @@
-var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3}
-var editorConfig = {"width": 10, "height": 10}
+var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3, "spotlight": false}
+var editorConfig = {"width": 10, "height": 10, "spotlight": false}
 var editor = {"x": 0, "y": 0, "item": "solid", "data": [], "origData": []}
 var screen;
 var scenario = "title"
@@ -14,43 +14,8 @@ var levelsfinished = 0
 var isRandom = false
 var isEditor = false
 var movingElms = []
-
-if( navigator.userAgent.match(/Android/i)
- || navigator.userAgent.match(/webOS/i)
- || navigator.userAgent.match(/iPhone/i)
- || navigator.userAgent.match(/iPad/i)
- || navigator.userAgent.match(/iPod/i)
- || navigator.userAgent.match(/BlackBerry/i)
- || navigator.userAgent.match(/Windows Phone/i)){
- // Start of "on phone" code
- var enterbutton = document.createElement('button')
- var upbutton = document.createElement('button')
- var leftbutton = document.createElement('button')
- var downbutton = document.createElement('button')
- var rightbutton = document.createElement('button')
- enterbutton.setAttribute('style', 'bottom: 65px; left: 65px; width: 50px; height: 50px; position: absolute')
- upbutton.setAttribute('style', 'bottom: 120px; right: 65px; width: 50px; height: 50px; position: absolute')
- leftbutton.setAttribute('style', 'bottom: 65px; right: 120px; width: 50px; height: 50px; position: absolute')
- downbutton.setAttribute('style', 'bottom: 10px; right: 65px; width: 50px; height: 50px; position: absolute')
- rightbutton.setAttribute('style', 'bottom: 65px; right: 10px; width: 50px; height: 50px; position: absolute')
- enterbutton.setAttribute('onclick', 'executeKeyInput(13)')
- upbutton.setAttribute('onclick', 'executeKeyInput(38)')
- leftbutton.setAttribute('onclick', 'executeKeyInput(37)')
- downbutton.setAttribute('onclick', 'executeKeyInput(40)')
- rightbutton.setAttribute('onclick', 'executeKeyInput(39)')
- enterbutton.innerHTML = "Enter"
- upbutton.innerHTML = "Up"
- leftbutton.innerHTML = "Left"
- downbutton.innerHTML = "Down"
- rightbutton.innerHTML = "Right"
- document.body.appendChild(enterbutton)
- document.body.appendChild(upbutton)
- document.body.appendChild(leftbutton)
- document.body.appendChild(downbutton)
- document.body.appendChild(rightbutton)
- // End of "on phone" code
-}
-
+var isSpotlight = false
+var isTorchSpotlight = false
 var data = {
 	"images": {
 		"solid": new Image,
@@ -65,6 +30,7 @@ var data = {
 		"flag": new Image,
 		"wall": new Image,
 		"ice": new Image,
+		"torch": new Image,
 		"arrow": new Image,
 		"flippedArrow": new Image,
 		"title": new Image,
@@ -73,6 +39,8 @@ var data = {
 			"cell": new Image,
 			"selected": new Image
 		},
+		"spotlight": new Image,
+		"torch_spotlight": new Image,
 		"buttons": {
 			"playtext": new Image,
 			"play": new Image,
@@ -101,6 +69,8 @@ var data = {
 			"longback": new Image,
 			"editor": new Image,
 			"edit": new Image,
+			"spotlight": new Image,
+			"editorbacktext": new Image,
 			"numbers": {
 				"zero": new Image,
 				"one": new Image,
@@ -132,7 +102,8 @@ var data = {
 		"music": {
 			"title": "./assets/sound/music/title.mp3",
 			"menu": "./assets/sound/music/menu.mp3",
-			"level": "./assets/sound/music/level.mp3"
+			"level": "./assets/sound/music/level.mp3",
+			"spotlight": "./assets/sound/music/spotlight.mp3"
 		}
 	},
 	"levels": {
@@ -146,7 +117,7 @@ var data = {
 		"world2": {
 			"level1": [[1,5,7,0,0,8,7,7,1,4],[1,1,2,0,0,0,7,1,1,3],[2,3,4,3,0,0,7,7,2,0],[1,1,2,0,0,0,0,7,2,7],[1,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,7,0,7],[0,0,1,0,0,0,0,7,0,7],[4,1,1,0,0,0,0,7,6,7]],
 			"level2": [[2,2,2,2,2,2,3,4,3,0,0],[2,3,4,3,0,0,0,3,0,0,0],[2,2,2,1,0,0,0,0,0,0,0],[1,1,1,7,7,7,7,7,7,7,7],[1,1,0,0,0,3,0,7,0,0,0],[1,8,0,0,0,7,4,7,0,7,0],[1,1,0,0,0,7,7,7,0,7,0],[1,1,1,0,5,0,0,0,0,7,6]],
-			"level3": [],
+			"level3": [[1,1,1,1,1,1,1,1,0,0],[1,1,2,3,0,2,5,1,0,0],[1,0,1,1,0,2,3,1,0,0],[1,0,10,1,4,0,0,1,1,1],[1,1,0,1,1,2,0,0,0,0],[1,1,0,4,1,0,1,1,1,0],[1,1,0,1,2,0,0,0,0,0],[1,1,0,1,3,0,1,2,0,1],[1,1,0,0,0,0,3,4,1,1],[1,1,1,1,1,1,1,1,1,1]],
 			"level4": [],
 			"level5": []
 		},
@@ -183,12 +154,15 @@ data.images.resetter.src = "./assets/images/resetter.png"
 data.images.flag.src = "./assets/images/flag.png"
 data.images.wall.src = "./assets/images/wall.png"
 data.images.ice.src = "./assets/images/ice.png"
+data.images.torch.src = "./assets/images/torch.png"
 data.images.arrow.src = "./assets/images/arrow.png"
 data.images.flippedArrow.src = "./assets/images/flippedArrow.png"
 data.images.title.src = "./assets/images/title.png"
 data.images.dong.src = "./assets/images/dong.png"
 data.images.editor.cell.src = "./assets/images/editor/cell.png"
 data.images.editor.selected.src = "./assets/images/editor/selected.png"
+data.images.spotlight.src = "./assets/images/spotlight.png"
+data.images.torch_spotlight.src = "./assets/images/torch_spotlight.png"
 data.images.buttons.play.src = "./assets/images/buttons/play.png"
 data.images.buttons.playtext.src = "./assets/images/buttons/playtext.png"
 data.images.buttons.back.src = "./assets/images/buttons/back.png"
@@ -216,6 +190,8 @@ data.images.buttons.generate.src = "./assets/images/buttons/generate.png"
 data.images.buttons.longback.src = "./assets/images/buttons/longback.png"
 data.images.buttons.editor.src = "./assets/images/buttons/editor.png"
 data.images.buttons.edit.src = "./assets/images/buttons/edit.png"
+data.images.buttons.editorbacktext.src = "./assets/images/buttons/editorbacktext.png"
+data.images.buttons.spotlight.src = "./assets/images/buttons/spotlight.png"
 data.images.buttons.numbers.zero.src = "./assets/images/buttons/numbers/zero.png"
 data.images.buttons.numbers.one.src = "./assets/images/buttons/numbers/one.png"
 data.images.buttons.numbers.two.src = "./assets/images/buttons/numbers/two.png"
@@ -297,9 +273,11 @@ function changeMusic(music) {
 document.getElementById('music').src = music
 document.getElementById('music').parentNode.load()
 }
-function generateRandomLevel(width, height, solidRate, resetterRate, iceRate, hasLever, moneybagAmount) {
+function generateRandomLevel(width, height, solidRate, resetterRate, iceRate, hasLever, moneybagAmount, spotlight) {
 isRandom = true
 isEditor = false
+isTorchSpotlight = false
+isSpotlight = spotlight
 moneybags = 0
 maxmoneybags = moneybagAmount
 scenario = 'level'
@@ -365,6 +343,12 @@ var column = Math.floor(Math.random() * width)
 if (tileData[row][column] != 0) i--
 else tileData[row][column] = 8
 }
+for (var i = 0; i < 1; i++) {
+var row = Math.floor(Math.random() * height)
+var column = Math.floor(Math.random() * width)
+if (tileData[row][column] != 0) i--
+else tileData[row][column] = 11
+}
 for (var i = 0; i < tileData.length; i++) {
 origTileData.push([])
 for (var j = 0; j < tileData[i].length; j++) {
@@ -377,16 +361,22 @@ if (tileData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i
 if (tileData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
 if (tileData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
 if (tileData[i][j] == 8) {
+	if (spotlight) tileData[i][j] == 10
 	screen.drawImage(data.images.mario, x + (j * 32), y + (i * 32))
 	playerPos.x = j
 	playerPos.y = i
 }
+if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
 }
 }
+if (spotlight) {
+	drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 32), y + ((playerPos.y * 32) - 32), 96, 96)
+	screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
+	changeMusic(data.sound.music.spotlight)
 }
-function randomCustomization(width, height, solidRate, resetterRate, iceRate, hasLever, moneybagAmount, index) {
+}
+function randomCustomization(width, height, solidRate, resetterRate, iceRate, hasLever, moneybagAmount, spotlight, index) {
 	scenario = "randomconfig" + index
-	hasLever + '-' + moneybagAmount
 	screen.clearRect(0, 0, elm.width, elm.height)
 	var menuwidth = 502
 	var menuheight = 288
@@ -400,8 +390,9 @@ function randomCustomization(width, height, solidRate, resetterRate, iceRate, ha
 	screen.drawImage(data.images.buttons.icespawnrate, x + 32, y + 128)
 	screen.drawImage(data.images.buttons.mnbgamount, x + 32, y + 160)
 	screen.drawImage(data.images.buttons.spwnlvranddoor, x + 32, y + 192)
-	screen.drawImage(data.images.buttons.generate, x + 32, y + 224)
-	screen.drawImage(data.images.buttons.longback, x + 32, y + 256)
+	screen.drawImage(data.images.buttons.spotlight, x + 32, y + 224)
+	screen.drawImage(data.images.buttons.generate, x + 32, y + 256)
+	screen.drawImage(data.images.buttons.longback, x + 32, y + 288)
 	if (index >= 0 && index <= 5) {
 		screen.drawImage(data.images.flippedArrow, x + 392, y + (index * 32))
 		screen.drawImage(data.images.arrow, x + 470, y + (index * 32))
@@ -447,10 +438,13 @@ function randomCustomization(width, height, solidRate, resetterRate, iceRate, ha
 	if (moneybagAmount == 5) screen.drawImage(data.images.buttons.numbers.five, x + 424, y + 160)
 	if (hasLever) screen.drawImage(data.images.buttons.true, x + 392, y + 192)
 	if (!hasLever) screen.drawImage(data.images.buttons.false, x + 392, y + 192)
+	if (spotlight) screen.drawImage(data.images.buttons.true, x + 392, y + 224)
+	if (!spotlight) screen.drawImage(data.images.buttons.false, x + 392, y + 224)
 }
 function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 	isRandom = false
 	isEditor = false
+	isTorchSpotlight = false
 	if (isRandomPlay) isRandom = true
 	if (isEditorPlay) isEditor = true
 	maxmoneybags = 3
@@ -480,16 +474,23 @@ function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 			if (levelData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
 			if (levelData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
 			if (levelData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
-			if (levelData[i][j] == 8) {
+			if (levelData[i][j] == 8 || levelData[i][j] == 10) {
 				screen.drawImage(data.images.mario, x + (j * 32), y + (i * 32))
 				playerPos.x = j
 				playerPos.y = i
 			}
+			if (levelData[i][j] == 10) isSpotlight = true
+			if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
 		}
 		screen.drawImage(data.images.wall, x + (levelData[0].length * 32), y + (i * 32))
 	}
 	for (var i = -1; i < levelData[0].length + 1; i++) {
 		screen.drawImage(data.images.wall, x + (i * 32), y + (levelData.length * 32))
+	}
+	if (isSpotlight) {
+		drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 32), y + ((playerPos.y * 32) - 32), 96, 96)
+		screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
+		changeMusic(data.sound.music.spotlight)
 	}
 }
 function move(dir) {
@@ -517,6 +518,11 @@ function move(dir) {
 			else renderLevel(editor.origData, false, true)
 			return
 		}
+		if (tileData[playerPos.y][playerPos.x] == 11) {
+			tileData[playerPos.y][playerPos.x] = 0
+			isTorchSpotlight = true
+			data.sound.ok.play()
+		}
 	}
 	if (dir == 'down') {
 		playerPos.y++
@@ -542,6 +548,11 @@ function move(dir) {
 			else renderLevel(editor.origData, false, true)
 			return
 		}
+		if (tileData[playerPos.y][playerPos.x] == 11) {
+			tileData[playerPos.y][playerPos.x] = 0
+			isTorchSpotlight = true
+			data.sound.ok.play()
+		}
 	}
 	if (dir == 'left') {
 		playerPos.x--
@@ -565,6 +576,11 @@ function move(dir) {
 			if (!isEditor) renderLevel(origTileData, isRandom, false)
 			else renderLevel(editor.origData, false, true)
 			return
+		}
+		if (tileData[playerPos.y][playerPos.x] == 11) {
+			tileData[playerPos.y][playerPos.x] = 0
+			isTorchSpotlight = true
+			data.sound.ok.play()
 		}
 	}
 	if (dir == 'right') {
@@ -590,6 +606,11 @@ function move(dir) {
 			else renderLevel(editor.origData, false, true)
 			return
 		}
+		if (tileData[playerPos.y][playerPos.x] == 11) {
+			tileData[playerPos.y][playerPos.x] = 0
+			isTorchSpotlight = true
+			data.sound.ok.play()
+		}
 	}
 	screen.clearRect(0, 0, elm.width, elm.height)
 	var x = (elm.width - (elm.width / 2)) - (tileData[0].length * 16)
@@ -607,14 +628,32 @@ function move(dir) {
 			if (tileData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
-			if (tileData[i][j] == 8) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
+			if (tileData[i][j] == 8 || tileData[i][j] == 10) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
 			if (tileData[i][j] == 9) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
 		}
 		screen.drawImage(data.images.wall, x + (tileData[0].length * 32), y + (i * 32))
 	}
 	for (var i = -1; i < tileData[0].length + 1; i++) {
 		screen.drawImage(data.images.wall, x + (i * 32), y + (tileData.length * 32))
 	}
+	if (isSpotlight) {
+		if (isTorchSpotlight) {
+			drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
+			screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
+		}
+		else {
+			drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 32), y + ((playerPos.y * 32) - 32), 96, 96)
+			screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
+		}
+	}
+}
+function drawRectangleWithHole(ctx, color, x, y, width, height, holeX, holeY, holeWidth, holeHeight) {
+	ctx.fillStyle = color
+	ctx.fillRect(x, y, holeX, height)
+	ctx.fillRect(x, y, width, holeY)
+	ctx.fillRect(x + holeX + holeWidth, y, width - (holeX + holeWidth), height)
+	ctx.fillRect(x, y + holeY + holeHeight, width, height - (holeY + holeHeight))
 }
 function finishLevel() {
 	if (moneybags != maxmoneybags) return
@@ -637,7 +676,7 @@ function activateLever() {
 		}
 	}
 }
-function openEditor(width, height, index) {
+function openEditor(width, height, isSpotlight, index) {
 	screen.clearRect(0, 0, elm.width, elm.height)
 	scenario = "editor" + index
 	var menuwidth = 260
@@ -647,8 +686,9 @@ function openEditor(width, height, index) {
 	var y = (elm.height - (elm.height / 2)) - (menuheight / 2)
 	screen.drawImage(data.images.buttons.width, x + 32, y)
 	screen.drawImage(data.images.buttons.height, x + 32, y + 32)
-	screen.drawImage(data.images.buttons.edit, x + 32, y + 64)
-	screen.drawImage(data.images.buttons.longback, x + 32, y + 96)
+	screen.drawImage(data.images.buttons.spotlight, x + 32, y + 64)
+	screen.drawImage(data.images.buttons.edit, x + 32, y + 96)
+	screen.drawImage(data.images.buttons.longback, x + 32, y + 128)
 	screen.drawImage(data.images.arrow, x, y + (index * 32))
 	if (index == 0 || index == 1) {
 		screen.drawImage(data.images.flippedArrow, x + 150, y + (index * 32))
@@ -676,62 +716,10 @@ function openEditor(width, height, index) {
 	if (height == 13) screen.drawImage(data.images.buttons.numbers.thirteen, x + 182, y + 32)
 	if (height == 14) screen.drawImage(data.images.buttons.numbers.fourteen, x + 182, y + 32)
 	if (height == 15) screen.drawImage(data.images.buttons.numbers.fifteen, x + 182, y + 32)
+	if (isSpotlight) screen.drawImage(data.images.buttons.true, x + 225, y + 64)
+	if (!isSpotlight) screen.drawImage(data.images.buttons.false, x + 225, y + 64)
 }
 function openEditorGrid(selX, selY, reset) {
-	var container = document.createElement('div')
-	container.setAttribute('style', 'top: 0px; left: 0px; position: absolute')
-	container.setAttribute('id', 'editormobiletilepicker')
-	if( navigator.userAgent.match(/Android/i)
-	|| navigator.userAgent.match(/webOS/i)
-	|| navigator.userAgent.match(/iPhone/i)
-	|| navigator.userAgent.match(/iPad/i)
-	|| navigator.userAgent.match(/iPod/i)
-	|| navigator.userAgent.match(/BlackBerry/i)
-	|| navigator.userAgent.match(/Windows Phone/i)){
-		// Start of "on phone" code
-		var solidbutton = document.createElement('button')
-		var resetterbutton = document.createElement('button')
-		var icebutton = document.createElement('button')
-		var moneybagbutton = document.createElement('button')
-		var flagbutton = document.createElement('button')
-		var leverbutton = document.createElement('button')
-		var doorbutton = document.createElement('button')
-		var mariobutton = document.createElement('button')
-		var playbutton = document.createElement('button')
-		var backbutton = document.createElement('button')
-		solidbutton.setAttribute('style', 'top: 16px; left: 16px; position: absolute; width: 46px; height: 32px')
-		resetterbutton.setAttribute('style', 'top: 48px; left: 16px; position: absolute; width: 46px; height: 32px')
-		icebutton.setAttribute('style', 'top: 80px; left: 16px; position: absolute; width: 46px; height: 32px')
-		moneybagbutton.setAttribute('style', 'top: 112px; left: 16px; position: absolute; width: 46px; height: 32px')
-		flagbutton.setAttribute('style', 'top: 144px; left: 16px; position: absolute; width: 46px; height: 32px')
-		leverbutton.setAttribute('style', 'top: 176px; left: 16px; position: absolute; width: 46px; height: 32px')
-		doorbutton.setAttribute('style', 'top: 208px; left: 16px; position: absolute; width: 46px; height: 32px')
-		mariobutton.setAttribute('style', 'top: 240px; left: 16px; position: absolute; width: 46px; height: 32px')
-		playbutton.setAttribute('style', 'top: 272px; left: 16px; position: absolute; width: 46px; height: 32px')
-		backbutton.setAttribute('style', 'top: 304px; left: 16px; position: absolute; width: 46px; height: 32px')
-		solidbutton.setAttribute('onclick', 'executeKeyInput(49)')
-		resetterbutton.setAttribute('onclick', 'executeKeyInput(50)')
-		icebutton.setAttribute('onclick', 'executeKeyInput(51)')
-		moneybagbutton.setAttribute('onclick', 'executeKeyInput(52)')
-		flagbutton.setAttribute('onclick', 'executeKeyInput(53)')
-		leverbutton.setAttribute('onclick', 'executeKeyInput(54)')
-		doorbutton.setAttribute('onclick', 'executeKeyInput(55)')
-		mariobutton.setAttribute('onclick', 'executeKeyInput(56)')
-		playbutton.setAttribute('onclick', 'executeKeyInput(57)')
-		backbutton.setAttribute('onclick', 'executeKeyInput(48)')
-		container.appendChild(solidbutton)
-		container.appendChild(resetterbutton)
-		container.appendChild(icebutton)
-		container.appendChild(moneybagbutton)
-		container.appendChild(flagbutton)
-		container.appendChild(leverbutton)
-		container.appendChild(doorbutton)
-		container.appendChild(mariobutton)
-		container.appendChild(playbutton)
-		container.appendChild(backbutton)
-		// End of "on phone" code
-	}
-	document.body.appendChild(container)
 	if (reset) {
 		editor.x = 0
 		editor.y = 0
@@ -758,7 +746,8 @@ function openEditorGrid(selX, selY, reset) {
 			if (editor.data[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
 			if (editor.data[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
 			if (editor.data[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
-			if (editor.data[i][j] == 8) screen.drawImage(data.images.mario, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 8 || editor.data[i][j] == 10) screen.drawImage(data.images.mario, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
 			if (i == selY && j == selX) screen.drawImage(data.images.editor.selected, x + (j * 32), y + (i * 32))
 		}
 	}
@@ -787,15 +776,16 @@ function openEditorGrid(selX, selY, reset) {
 	screen.drawImage(data.images.lever.off, 64, 176)
 	screen.drawImage(data.images.door, 64, 208)
 	screen.drawImage(data.images.mario, 64, 240)
-	screen.drawImage(data.images.buttons.playtext, 48, 272)
-	screen.drawImage(data.images.buttons.longback, 48, 304)
+	screen.drawImage(data.images.torch, 64, 272)
+	screen.drawImage(data.images.buttons.playtext, 48, 304)
+	screen.drawImage(data.images.buttons.editorbacktext, 16, elm.height - 42)
 }
 function scan(item) {
 	var found = false
 	if (item == "mario") {
 		for (var i = 0; i < editor.data.length; i++) {
 			for (var j = 0; j < editor.data[i].length; j++) {
-				if (editor.data[i][j] == 8) found = true
+				if (editor.data[i][j] == 8 || editor.data[i][j] == 10) found = true
 			}
 		}
 	}
@@ -999,7 +989,7 @@ return
 }
 if (scenario.includes('randomconfig')) {
 	var index = parseInt(scenario.substr(12, 1))
-	if (keycode == 40 && index != 8) index++
+	if (keycode == 40 && index != 9) index++
 	if (keycode == 38 && index != 0) index--
 	if (keycode == 37) {
 		if (index == 0 && randomLevelConfig.width != 5) randomLevelConfig.width--
@@ -1019,18 +1009,20 @@ if (scenario.includes('randomconfig')) {
 	}
 	if (keycode == 13 && index == 6 && randomLevelConfig.hasLever) randomLevelConfig.hasLever = false
 	else if (keycode == 13 && index == 6 && !randomLevelConfig.hasLever) randomLevelConfig.hasLever = true
-	if (keycode == 13 && index == 7) {
-		generateRandomLevel(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount)
+	if (keycode == 13 && index == 7 && randomLevelConfig.spotlight) randomLevelConfig.spotlight = false
+	else if (keycode == 13 && index == 7 && !randomLevelConfig.spotlight) randomLevelConfig.spotlight = true
+	if (keycode == 13 && index == 8) {
+		generateRandomLevel(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount, randomLevelConfig.spotlight)
 		return
 	}
-	if (keycode == 13 && index == 8) {
+	if (keycode == 13 && index == 9) {
 		updateSelection(true, 0, true)
 		scenario = "menu01"
 		data.sound.back.play()
 		return
 	}
 	data.sound.select.play()
-	randomCustomization(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount, index)
+	randomCustomization(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount, randomLevelConfig.spotlight, index)
 }
 if (scenario.includes('menu') && keycode == 13) {
 if (scenario != 'menu06' && scenario.includes('6')) {
@@ -1070,7 +1062,7 @@ data.sound.ok.play()
 return
 }
 if (scenario == 'menu06') {
-randomCustomization(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount, 0)
+randomCustomization(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount, randomLevelConfig.spotlight, 0)
 data.sound.ok.play()
 return
 }
@@ -1100,7 +1092,7 @@ else if (scenario.substr(4, 1) == "5" && scenario.substr(5, 1) == "3" && levelsf
 else if (scenario.substr(4, 1) == "5" && scenario.substr(5, 1) == "4" && levelsfinished == 23) renderLevel(data.levels.world5.level4)
 else if (scenario.substr(4, 1) == "5" && scenario.substr(5, 1) == "5" && levelsfinished == 24) renderLevel(data.levels.world5.level5)
 else if (scenario.substr(4, 1) == "0" && scenario.substr(5, 1) == "7") {
-	openEditor(editorConfig.width, editorConfig.height, 0)
+	openEditor(editorConfig.width, editorConfig.height, editorConfig.spotlight, 0)
 	data.sound.ok.play()
 }
 else data.sound.block.play()
@@ -1127,20 +1119,22 @@ if (scenario.includes('editor') && scenario != "editorgrid") {
 	if (keycode == 38 && index != 0) index--
 	if (keycode == 39 && index == 0 && editorConfig.width != 15) editorConfig.width++
 	if (keycode == 39 && index == 1 && editorConfig.height != 15) editorConfig.height++
-	if (keycode == 40 && index != 3) index++
-	if (keycode == 13 && index == 2) {
+	if (keycode == 13 && index == 2 && editorConfig.spotlight) editorConfig.spotlight = false
+	else if (keycode == 13 && index == 2 && !editorConfig.spotlight) editorConfig.spotlight = true
+	if (keycode == 40 && index != 4) index++
+	if (keycode == 13 && index == 3) {
 		openEditorGrid(0, 0, true)
 		data.sound.ok.play()
 		return
 	}
-	if (keycode == 13 && index == 3) {
+	if (keycode == 13 && index == 4) {
 		updateSelection(true, 0, true)
 		data.sound.back.play()
 		scenario = "menu01"
 		return
 	}
 	data.sound.select.play()
-	openEditor(editorConfig.width, editorConfig.height, index)
+	openEditor(editorConfig.width, editorConfig.height, editorConfig.spotlight, index)
 }
 if (scenario == "editorgrid") {
 	if (keycode == 37 && editor.x != 0) editor.x--
@@ -1155,16 +1149,16 @@ if (scenario == "editorgrid") {
 	if (keycode == 54) editor.item = "lever"
 	if (keycode == 55) editor.item = "door"
 	if (keycode == 56) editor.item = "mario"
-	if (keycode == 57) {
+	if (keycode == 57) editor.item = "torch"
+	if (keycode == 48) {
 		if (scan("flag") && scan("mario")) renderLevel(editor.data, false, true)
 		else data.sound.block.play()
 		return
 	}
-	if (keycode == 48) {
+	if (keycode == 16) {
 		scenario = "menu01"
 		updateSelection(true, 0, true)
 		data.sound.back.play()
-		document.getElementById('editormobiletilepicker').remove()
 		return
 	}
 	if (keycode == 13) {
@@ -1176,7 +1170,9 @@ if (scenario == "editorgrid") {
 			else if (editor.item == "flag") editor.data[editor.y][editor.x] = 5
 			else if (editor.item == "lever" && !scan("lever")) editor.data[editor.y][editor.x] = 6
 			else if (editor.item == "door") editor.data[editor.y][editor.x] = 7
-			else if (editor.item == "mario" && !scan("mario")) editor.data[editor.y][editor.x] = 8
+			else if (editor.item == "mario" && !scan("mario") && !editorConfig.spotlight) editor.data[editor.y][editor.x] = 8
+			else if (editor.item == "mario" && !scan("mario") && editorConfig.spotlight) editor.data[editor.y][editor.x] = 10
+			else if (editor.item == "torch") editor.data[editor.y][editor.x] = 11
 			else data.sound.block.play()
 		}
 		else editor.data[editor.y][editor.x] = 0

@@ -209,7 +209,7 @@ data.images.buttons.numbers.thirteen.src = "./assets/images/buttons/numbers/thir
 data.images.buttons.numbers.fourteen.src = "./assets/images/buttons/numbers/fourteen.png"
 data.images.buttons.numbers.fifteen.src = "./assets/images/buttons/numbers/fifteen.png"
 window.onkeydown = function(event) {
-executeKeyInput(event.keyCode)
+executeKeyInput(event.keyCode, event.code)
 }
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
@@ -836,7 +836,7 @@ function exportToArray() {
 	}
 	return string
 }
-function executeKeyInput(keycode) {
+function executeKeyInput(keycode, keyname) {
 if (scenario == 'menu01' && keycode == 40) {
 updateSelection(true, 1)
 scenario = 'menu02'
@@ -1155,7 +1155,7 @@ if (scenario == "editorgrid") {
 		else data.sound.block.play()
 		return
 	}
-	if (keycode == 16) {
+	if (keycode == 16 && keyname != "ShiftRight") {
 		scenario = "menu01"
 		updateSelection(true, 0, true)
 		data.sound.back.play()

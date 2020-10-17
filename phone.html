@@ -1,0 +1,23 @@
+<html>
+<head>
+<script src="./assets/main.js"></script>
+<title>Super Mario Expanded</title>
+<link rel="icon" href="./assets/images/title.png">
+<style>
+html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0;
+}
+</style>
+</head>
+<body onload="start(true)">
+<canvas></canvas>
+<audio controls="" autoplay="" loop="" style="display: none"><source id="music" src="./assets/sound/music/title.mp3" type="audio/mpeg"></audio>
+<button style="width: 50px; height: 50px; bottom: 65px; right: 65px; position: absolute" onclick="executeKeyInput(13)">Enter</button>
+<button style="width: 50px; height: 50px; bottom: 120px; left: 65px; position: absolute" onclick="executeKeyInput(38)">Up</button>
+<button style="width: 50px; height: 50px; bottom: 65px; left: 10px; position: absolute" onclick="executeKeyInput(37)">Left</button>
+<button style="width: 50px; height: 50px; bottom: 10px; left: 65px; position: absolute" onclick="executeKeyInput(40)">Down</button>
+<button style="width: 50px; height: 50px; bottom: 65px; left: 120px; position: absolute" onclick="executeKeyInput(39)">Right</button>
+</body>
+</html>

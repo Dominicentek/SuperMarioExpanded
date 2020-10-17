@@ -118,8 +118,8 @@ var data = {
 			"level1": [[1,5,7,0,0,8,7,7,1,4],[1,1,2,0,0,0,7,1,1,3],[2,3,4,3,0,0,7,7,2,0],[1,1,2,0,0,0,0,7,2,7],[1,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,7,0,7],[0,0,1,0,0,0,0,7,0,7],[4,1,1,0,0,0,0,7,6,7]],
 			"level2": [[2,2,2,2,2,2,3,4,3,0,0],[2,3,4,3,0,0,0,3,0,0,0],[2,2,2,1,0,0,0,0,0,0,0],[1,1,1,7,7,7,7,7,7,7,7],[1,1,0,0,0,3,0,7,0,0,0],[1,8,0,0,0,7,4,7,0,7,0],[1,1,0,0,0,7,7,7,0,7,0],[1,1,1,0,5,0,0,0,0,7,6]],
 			"level3": [[1,1,1,1,1,1,1,1,0,0],[1,1,2,3,0,2,5,1,0,0],[1,0,1,1,0,2,3,1,0,0],[1,0,10,1,4,0,0,1,1,1],[1,1,0,1,1,2,0,0,0,0],[1,1,0,4,1,0,1,1,1,0],[1,1,0,1,2,0,0,0,0,0],[1,1,0,1,3,0,1,2,0,1],[1,1,0,0,0,0,3,4,1,1],[1,1,1,1,1,1,1,1,1,1]],
-			"level4": [],
-			"level5": []
+			"level4": [[10,0,0,0,0,0,3,2,1,1,1],[1,1,0,2,0,0,1,1,1,1,1],[0,4,0,1,0,0,7,0,0,0,0],[0,2,2,1,0,0,7,0,0,0,0],[0,0,0,1,0,2,7,0,0,0,0],[7,7,7,1,0,1,7,0,0,5,0],[0,11,0,1,4,1,2,2,2,2,2],[1,1,1,1,0,1,0,0,0,0,6],[0,0,0,0,0,0,0,0,0,0,0],[3,3,3,3,3,3,3,3,3,3,3],[2,2,4,2,2,2,2,2,2,2,2]],
+			"level5": [[0,7,0,0,0,0,0,0,7,4],[5,7,0,0,0,0,0,0,7,7],[7,7,0,0,0,0,0,0,0,0],[0,7,0,0,0,0,0,0,0,0],[0,1,3,3,3,3,3,2,7,7],[4,1,0,0,0,0,0,2,0,0],[1,1,0,0,0,0,0,2,0,0],[8,0,0,2,2,2,3,1,0,0],[1,1,1,2,2,2,3,1,0,0],[6,0,0,0,0,0,0,1,0,4]]
 		},
 		"world3": {
 			"level1": [],
@@ -218,7 +218,9 @@ function getCursorPosition(canvas, event) {
     return [x,y]
 }
 var btnAvailable = false
-function start() {
+var phone = false
+function start(onphone) {
+if (onphone) phone = true
 elm = document.getElementsByTagName('canvas')[0]
 screen = elm.getContext('2d')
 elm.setAttribute('width', window.innerWidth)
@@ -311,6 +313,12 @@ screen.drawImage(data.images.wall, x + (width * 32), y + (i * 32))
 for (var i = -1; i < width + 1; i++) {
 screen.drawImage(data.images.wall, x + (i * 32), y + (height * 32))
 }
+for (var i = 0; i < 1; i++) {
+var row = Math.floor(Math.random() * height)
+var column = Math.floor(Math.random() * width)
+if (tileData[row][column] != 0) i--
+else tileData[row][column] = 8
+}
 for (var i = 0; i < moneybagAmount; i++) {
 var row = Math.floor(Math.random() * height)
 var column = Math.floor(Math.random() * width)
@@ -336,12 +344,6 @@ var row = Math.floor(Math.random() * height)
 var column = Math.floor(Math.random() * width)
 if (tileData[row][column] != 0) i--
 else tileData[row][column] = 5
-}
-for (var i = 0; i < 1; i++) {
-var row = Math.floor(Math.random() * height)
-var column = Math.floor(Math.random() * width)
-if (tileData[row][column] != 0) i--
-else tileData[row][column] = 8
 }
 for (var i = 0; i < 1; i++) {
 var row = Math.floor(Math.random() * height)
@@ -522,6 +524,11 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
+			setTimeout(function() {
+				isSpotlight = true
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
+				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
+			}, 1000)
 		}
 	}
 	if (dir == 'down') {
@@ -552,6 +559,12 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
+			isSpotlight = false
+			setTimeout(function() {
+				isSpotlight = true
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
+				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
+			}, 1000)
 		}
 	}
 	if (dir == 'left') {
@@ -581,6 +594,12 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
+			isSpotlight = false
+			setTimeout(function() {
+				isSpotlight = true
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
+				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
+			}, 1000)
 		}
 	}
 	if (dir == 'right') {
@@ -610,6 +629,12 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
+			isSpotlight = false
+			setTimeout(function() {
+				isSpotlight = true
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
+				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
+			}, 1000)
 		}
 	}
 	screen.clearRect(0, 0, elm.width, elm.height)
@@ -1091,7 +1116,7 @@ else if (scenario.substr(4, 1) == "5" && scenario.substr(5, 1) == "2" && levelsf
 else if (scenario.substr(4, 1) == "5" && scenario.substr(5, 1) == "3" && levelsfinished == 22) renderLevel(data.levels.world5.level3)
 else if (scenario.substr(4, 1) == "5" && scenario.substr(5, 1) == "4" && levelsfinished == 23) renderLevel(data.levels.world5.level4)
 else if (scenario.substr(4, 1) == "5" && scenario.substr(5, 1) == "5" && levelsfinished == 24) renderLevel(data.levels.world5.level5)
-else if (scenario.substr(4, 1) == "0" && scenario.substr(5, 1) == "7") {
+else if (scenario.substr(4, 1) == "0" && scenario.substr(5, 1) == "7" && !phone) {
 	openEditor(editorConfig.width, editorConfig.height, editorConfig.spotlight, 0)
 	data.sound.ok.play()
 }

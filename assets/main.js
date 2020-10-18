@@ -1,4 +1,4 @@
-var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3, "spotlight": false}
+var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3, "spotlight": false, "seed": ""}
 var editorConfig = {"width": 10, "height": 10, "spotlight": false}
 var editor = {"x": 0, "y": 0, "item": "solid", "data": [], "origData": []}
 var screen;
@@ -16,6 +16,9 @@ var isEditor = false
 var movingElms = []
 var isSpotlight = false
 var isTorchSpotlight = false
+var hasPickaxe = false
+var world = 1
+var level = 1
 var data = {
 	"images": {
 		"solid": new Image,
@@ -31,6 +34,7 @@ var data = {
 		"wall": new Image,
 		"ice": new Image,
 		"torch": new Image,
+		"pickaxe": new Image,
 		"arrow": new Image,
 		"flippedArrow": new Image,
 		"title": new Image,
@@ -71,6 +75,7 @@ var data = {
 			"edit": new Image,
 			"spotlight": new Image,
 			"editorbacktext": new Image,
+			"seed": new Image,
 			"numbers": {
 				"zero": new Image,
 				"one": new Image,
@@ -122,9 +127,9 @@ var data = {
 			"level5": [[0,7,0,0,0,0,0,0,7,4],[5,7,0,0,0,0,0,0,7,7],[7,7,0,0,0,0,0,0,0,0],[0,7,0,0,0,0,0,0,0,0],[0,1,3,3,3,3,3,2,7,7],[4,1,0,0,0,0,0,2,0,0],[1,1,0,0,0,0,0,2,0,0],[8,0,0,2,2,2,3,1,0,0],[1,1,1,2,2,2,3,1,0,0],[6,0,0,0,0,0,0,1,0,4]]
 		},
 		"world3": {
-			"level1": [],
-			"level2": [],
-			"level3": [],
+			"level1": [[0,0,0,0,0,0,7,7,0,0,0,1,1],[0,4,0,0,0,0,7,7,0,0,0,1,1],[0,0,0,0,0,0,7,7,0,5,0,1,1],[0,0,0,0,0,0,7,7,1,1,1,1,6],[1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,7,7,0,0,0,0,0,0,0,0,4],[0,0,7,7,0,0,0,0,0,0,0,0,0],[4,0,7,7,0,0,0,0,0,0,0,12,0],[12,0,7,7,0,8,0,0,0,0,0,0,0]],
+			"level2": [[2,0,4,4,2],[2,0,5,4,2],[2,1,2,2,2],[2,0,0,0,2],[2,12,0,8,2]],
+			"level3": [[1,12,1,12,1,12,1,12,1,12,1,12,1,12,2,12,4],[12,1,12,1,12,2,12,2,12,1,12,2,12,4,12,2,12],[1,12,1,12,2,12,2,12,1,12,2,12,2,12,2,12,1],[12,1,12,2,12,2,12,2,12,1,12,1,12,2,12,1,12],[1,12,1,12,1,12,2,12,2,12,2,12,2,12,2,12,1],[12,2,12,1,12,2,12,2,12,2,12,1,12,1,12,1,12],[2,12,4,12,2,12,1,12,1,12,1,12,1,12,2,12,1],[12,2,12,2,12,1,12,2,12,2,12,1,12,1,12,2,12],[2,12,2,12,1,12,2,12,2,12,2,12,1,12,2,12,2],[12,2,12,1,12,2,12,1,12,1,12,2,12,1,12,2,12],[2,12,1,12,1,12,2,12,5,12,2,12,1,12,2,12,2],[12,2,12,1,12,2,12,1,12,2,12,1,12,2,12,2,12],[2,12,1,12,1,12,2,12,2,12,1,12,2,12,2,12,2],[12,2,12,1,12,2,12,1,12,1,12,2,12,2,12,2,12],[2,8,12,12,2,12,2,12,2,12,2,12,2,12,2,12,2]],
 			"level4": [],
 			"level5": []
 		},
@@ -155,6 +160,7 @@ data.images.flag.src = "./assets/images/flag.png"
 data.images.wall.src = "./assets/images/wall.png"
 data.images.ice.src = "./assets/images/ice.png"
 data.images.torch.src = "./assets/images/torch.png"
+data.images.pickaxe.src = "./assets/images/pickaxe.png"
 data.images.arrow.src = "./assets/images/arrow.png"
 data.images.flippedArrow.src = "./assets/images/flippedArrow.png"
 data.images.title.src = "./assets/images/title.png"
@@ -192,6 +198,7 @@ data.images.buttons.editor.src = "./assets/images/buttons/editor.png"
 data.images.buttons.edit.src = "./assets/images/buttons/edit.png"
 data.images.buttons.editorbacktext.src = "./assets/images/buttons/editorbacktext.png"
 data.images.buttons.spotlight.src = "./assets/images/buttons/spotlight.png"
+data.images.buttons.seed.src = "./assets/images/buttons/seed.png"
 data.images.buttons.numbers.zero.src = "./assets/images/buttons/numbers/zero.png"
 data.images.buttons.numbers.one.src = "./assets/images/buttons/numbers/one.png"
 data.images.buttons.numbers.two.src = "./assets/images/buttons/numbers/two.png"
@@ -276,6 +283,7 @@ document.getElementById('music').src = music
 document.getElementById('music').parentNode.load()
 }
 function generateRandomLevel(width, height, solidRate, resetterRate, iceRate, hasLever, moneybagAmount, spotlight) {
+Math.seedrandom(randomLevelConfig.seed)
 isRandom = true
 isEditor = false
 isTorchSpotlight = false
@@ -369,6 +377,7 @@ if (tileData[i][j] == 8) {
 	playerPos.y = i
 }
 if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
+if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe,x + (j * 32), y + (i * 32))
 }
 }
 if (spotlight) {
@@ -393,8 +402,9 @@ function randomCustomization(width, height, solidRate, resetterRate, iceRate, ha
 	screen.drawImage(data.images.buttons.mnbgamount, x + 32, y + 160)
 	screen.drawImage(data.images.buttons.spwnlvranddoor, x + 32, y + 192)
 	screen.drawImage(data.images.buttons.spotlight, x + 32, y + 224)
-	screen.drawImage(data.images.buttons.generate, x + 32, y + 256)
-	screen.drawImage(data.images.buttons.longback, x + 32, y + 288)
+	screen.drawImage(data.images.buttons.seed, x + 32, y + 256)
+	screen.drawImage(data.images.buttons.generate, x + 32, y + 288)
+	screen.drawImage(data.images.buttons.longback, x + 32, y + 320)
 	if (index >= 0 && index <= 5) {
 		screen.drawImage(data.images.flippedArrow, x + 392, y + (index * 32))
 		screen.drawImage(data.images.arrow, x + 470, y + (index * 32))
@@ -449,6 +459,8 @@ function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 	isTorchSpotlight = false
 	if (isRandomPlay) isRandom = true
 	if (isEditorPlay) isEditor = true
+	if (!isRandomPlay || !isEditorPlay) world = parseInt(scenario.charAt(4))
+	if (!isRandomPlay || !isEditorPlay) level = parseInt(scenario.charAt(5))
 	maxmoneybags = 3
 	if (scenario == "menu55") maxmoneybags = 223
 	if (isEditorPlay) maxmoneybags = scan("moneybag")
@@ -482,13 +494,16 @@ function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 				playerPos.y = i
 			}
 			if (levelData[i][j] == 10) isSpotlight = true
+			if (levelData[i][j] == 8) isSpotlight = false
 			if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
 		}
 		screen.drawImage(data.images.wall, x + (levelData[0].length * 32), y + (i * 32))
 	}
 	for (var i = -1; i < levelData[0].length + 1; i++) {
 		screen.drawImage(data.images.wall, x + (i * 32), y + (levelData.length * 32))
 	}
+	if (isRandomPlay) isSpotlight = randomLevelConfig.spotlight
 	if (isSpotlight) {
 		drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 32), y + ((playerPos.y * 32) - 32), 96, 96)
 		screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
@@ -499,7 +514,14 @@ function move(dir) {
 	if (dir == 'up') {
 		playerPos.y--
 		if (playerPos.y == -1) playerPos.y++
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) playerPos.y++
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+			playerPos.y++
+			if (hasPickaxe) {
+				hasPickaxe = false
+				tileData[playerPos.y - 1][playerPos.x] = 0
+				data.sound.switchlever.play()
+			}
+		}
 		if (tileData[playerPos.y][playerPos.x] == 3) {
 			tileData[playerPos.y][playerPos.x] = 0
 			move('up')
@@ -525,11 +547,23 @@ function move(dir) {
 			isTorchSpotlight = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 12) {
+			tileData[playerPos.y][playerPos.x] = 0
+			hasPickaxe = true
+			data.sound.ok.play()
+		}
 	}
 	if (dir == 'down') {
 		playerPos.y++
 		if (playerPos.y == tileData.length) playerPos.y--
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) playerPos.y--
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+			playerPos.y--
+			if (hasPickaxe) {
+				hasPickaxe = false
+				tileData[playerPos.y + 1][playerPos.x] = 0
+				data.sound.switchlever.play()
+			}
+		}
 		if (tileData[playerPos.y][playerPos.x] == 3) {
 			tileData[playerPos.y][playerPos.x] = 0
 			move('down')
@@ -555,10 +589,23 @@ function move(dir) {
 			isTorchSpotlight = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 12) {
+			tileData[playerPos.y][playerPos.x] = 0
+			hasPickaxe = true
+			data.sound.ok.play()
+		}
 	}
 	if (dir == 'left') {
 		playerPos.x--
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || playerPos.x == -1) playerPos.x++
+		if (playerPos.x == -1) playerPos.x++
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+			playerPos.x++
+			if (hasPickaxe) {
+				hasPickaxe = false
+				tileData[playerPos.y][playerPos.x - 1] = 0
+				data.sound.switchlever.play()
+			}
+		}
 		if (tileData[playerPos.y][playerPos.x] == 3) {
 			tileData[playerPos.y][playerPos.x] = 0
 			move('left')
@@ -584,10 +631,23 @@ function move(dir) {
 			isTorchSpotlight = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 12) {
+			tileData[playerPos.y][playerPos.x] = 0
+			hasPickaxe = true
+			data.sound.ok.play()
+		}
 	}
 	if (dir == 'right') {
 		playerPos.x++
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || playerPos.x == tileData[0].length) playerPos.x--
+		if (playerPos.x == tileData[0].length) playerPos.x--
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+			playerPos.x--
+			if (hasPickaxe) {
+				hasPickaxe = false
+				tileData[playerPos.y][playerPos.x + 1] = 0
+				data.sound.switchlever.play()
+			}
+		}
 		if (tileData[playerPos.y][playerPos.x] == 3) {
 			tileData[playerPos.y][playerPos.x] = 0
 			move('right')
@@ -613,6 +673,11 @@ function move(dir) {
 			isTorchSpotlight = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 12) {
+			tileData[playerPos.y][playerPos.x] = 0
+			hasPickaxe = true
+			data.sound.ok.play()
+		}
 	}
 	screen.clearRect(0, 0, elm.width, elm.height)
 	var x = (elm.width - (elm.width / 2)) - (tileData[0].length * 16)
@@ -633,6 +698,7 @@ function move(dir) {
 			if (tileData[i][j] == 8 || tileData[i][j] == 10) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
 			if (tileData[i][j] == 9) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
 		}
 		screen.drawImage(data.images.wall, x + (tileData[0].length * 32), y + (i * 32))
 	}
@@ -991,7 +1057,7 @@ return
 }
 if (scenario.includes('randomconfig')) {
 	var index = parseInt(scenario.substr(12, 1))
-	if (keycode == 40 && index != 9) index++
+	if (keycode == 40 && index != 10) index++
 	if (keycode == 38 && index != 0) index--
 	if (keycode == 37) {
 		if (index == 0 && randomLevelConfig.width != 5) randomLevelConfig.width--
@@ -1013,11 +1079,12 @@ if (scenario.includes('randomconfig')) {
 	else if (keycode == 13 && index == 6 && !randomLevelConfig.hasLever) randomLevelConfig.hasLever = true
 	if (keycode == 13 && index == 7 && randomLevelConfig.spotlight) randomLevelConfig.spotlight = false
 	else if (keycode == 13 && index == 7 && !randomLevelConfig.spotlight) randomLevelConfig.spotlight = true
-	if (keycode == 13 && index == 8) {
+	if (keycode == 13 && index == 8) randomLevelConfig.seed = prompt('Enter seed (Blank for random)')
+	if (keycode == 13 && index == 9) {
 		generateRandomLevel(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount, randomLevelConfig.spotlight)
 		return
 	}
-	if (keycode == 13 && index == 9) {
+	if (keycode == 13 && index == 10) {
 		updateSelection(true, 0, true)
 		scenario = "menu01"
 		data.sound.back.play()
@@ -1064,6 +1131,7 @@ data.sound.ok.play()
 return
 }
 if (scenario == 'menu06') {
+randomLevelConfig.seed = ""
 randomCustomization(randomLevelConfig.width, randomLevelConfig.height, randomLevelConfig.solidRate, randomLevelConfig.resetterRate, randomLevelConfig.iceRate, randomLevelConfig.hasLever, randomLevelConfig.moneybagAmount, randomLevelConfig.spotlight, 0)
 data.sound.ok.play()
 return
@@ -1113,6 +1181,20 @@ if (scenario == 'level') {
 	if (keycode == 38) move('up')
 	if (keycode == 39) move('right')
 	if (keycode == 40) move('down')
+	if (keycode == 16 && keyname != "ShiftRight") {
+		updateSelection(true, 0, true)
+		scenario = "menu01"
+		changeMusic(data.sound.music.menu)
+		data.sound.back.play()
+		if (isRandom || isEditor) return
+		data.levels['world' + world]['level' + level] = []
+		for (var i = 0; i < origTileData.length; i++) {
+			data.levels['world' + world]['level' + level].push([])
+			for (var j = 0; j < origTileData[i].length; j++) {
+				data.levels['world' + world]['level' + level][i].push(origTileData[i][j])
+			}
+		}
+	}
 }
 if (scenario.includes('editor') && scenario != "editorgrid") {
 	var index = parseInt(scenario.substr(6, 1))

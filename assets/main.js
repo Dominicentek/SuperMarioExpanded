@@ -283,6 +283,8 @@ document.getElementById('music').src = music
 document.getElementById('music').parentNode.load()
 }
 function generateRandomLevel(width, height, solidRate, resetterRate, iceRate, hasLever, moneybagAmount, spotlight) {
+Math.seedrandom()
+if (randomLevelConfig.seed == "" || randomLevelConfig.seed == null) randomLevelConfig.seed = "" + Math.floor(Math.random() * 9223372036854775807)
 Math.seedrandom(randomLevelConfig.seed)
 isRandom = true
 isEditor = false
@@ -1195,6 +1197,7 @@ if (scenario == 'level') {
 			}
 		}
 	}
+	if (keycode == 81 && isRandom) alert(randomLevelConfig.seed)
 }
 if (scenario.includes('editor') && scenario != "editorgrid") {
 	var index = parseInt(scenario.substr(6, 1))

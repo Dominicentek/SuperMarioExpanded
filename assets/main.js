@@ -1197,7 +1197,7 @@ if (scenario == 'level') {
 			}
 		}
 	}
-	if (keycode == 81 && isRandom) alert('Seed: ' + randomLevelConfig.seed + '\nWidth: ' + randomLevelConfig.width + '\nHeight: ' + randomLevelConfig.height + '\nSolid Spawn Rate: ' + randomLevelConfig.solidRate + '\nResetter Spawn Rate: ' + randomLevelConfig.resetterRate + 'Ice Spawn Rate: ' + randomLevelConfig.iceRate + 'Has Lever Generated: ' + randomLevelConfig.hasLever + '\nMoneybag Amount: ' + randomLevelConfig.moneybagAmount + '\nSpotlight: ' + randomLevelConfig.spotlight)
+	if (keycode == 81 && isRandom) alert('Seed: ' + randomLevelConfig.seed + '\nWidth: ' + randomLevelConfig.width + '\nHeight: ' + randomLevelConfig.height + '\nSolid Spawn Rate: ' + randomLevelConfig.solidRate + '\nResetter Spawn Rate: ' + randomLevelConfig.resetterRate + '\nIce Spawn Rate: ' + randomLevelConfig.iceRate + '\nHas Lever Generated: ' + randomLevelConfig.hasLever + '\nMoneybag Amount: ' + randomLevelConfig.moneybagAmount + '\nSpotlight: ' + randomLevelConfig.spotlight)
 }
 if (scenario.includes('editor') && scenario != "editorgrid") {
 	var index = parseInt(scenario.substr(6, 1))

@@ -524,11 +524,6 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
-			setTimeout(function() {
-				isSpotlight = true
-				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
-				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
-			}, 1000)
 		}
 	}
 	if (dir == 'down') {
@@ -559,12 +554,6 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
-			isSpotlight = false
-			setTimeout(function() {
-				isSpotlight = true
-				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
-				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
-			}, 1000)
 		}
 	}
 	if (dir == 'left') {
@@ -594,12 +583,6 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
-			isSpotlight = false
-			setTimeout(function() {
-				isSpotlight = true
-				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
-				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
-			}, 1000)
 		}
 	}
 	if (dir == 'right') {
@@ -629,12 +612,6 @@ function move(dir) {
 			tileData[playerPos.y][playerPos.x] = 0
 			isTorchSpotlight = true
 			data.sound.ok.play()
-			isSpotlight = false
-			setTimeout(function() {
-				isSpotlight = true
-				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
-				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
-			}, 1000)
 		}
 	}
 	screen.clearRect(0, 0, elm.width, elm.height)

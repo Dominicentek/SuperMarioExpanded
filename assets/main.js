@@ -1,3 +1,5 @@
+var developerMode = false
+
 var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3, "spotlight": false, "seed": ""}
 var editorConfig = {"width": 10, "height": 10, "spotlight": false}
 var editor = {"x": 0, "y": 0, "item": "solid", "data": [], "origData": []}
@@ -19,6 +21,7 @@ var isTorchSpotlight = false
 var hasPickaxe = false
 var world = 1
 var level = 1
+var blinking = true;
 var data = {
 	"images": {
 		"solid": new Image,
@@ -130,7 +133,7 @@ var data = {
 			"level1": [[0,0,0,0,0,0,7,7,0,0,0,1,1],[0,4,0,0,0,0,7,7,0,0,0,1,1],[0,0,0,0,0,0,7,7,0,5,0,1,1],[0,0,0,0,0,0,7,7,1,1,1,1,6],[1,1,1,1,1,1,1,1,1,1,1,1,1],[0,0,7,7,0,0,0,0,0,0,0,0,4],[0,0,7,7,0,0,0,0,0,0,0,0,0],[4,0,7,7,0,0,0,0,0,0,0,12,0],[12,0,7,7,0,8,0,0,0,0,0,0,0]],
 			"level2": [[2,0,4,4,2],[2,0,5,4,2],[2,1,2,2,2],[2,0,0,0,2],[2,12,0,8,2]],
 			"level3": [[1,12,1,12,1,12,1,12,1,12,1,12,1,12,2,12,4],[12,1,12,1,12,2,12,2,12,1,12,2,12,4,12,2,12],[1,12,1,12,2,12,2,12,1,12,2,12,2,12,2,12,1],[12,1,12,2,12,2,12,2,12,1,12,1,12,2,12,1,12],[1,12,1,12,1,12,2,12,2,12,2,12,2,12,2,12,1],[12,2,12,1,12,2,12,2,12,2,12,1,12,1,12,1,12],[2,12,4,12,2,12,1,12,1,12,1,12,1,12,2,12,1],[12,2,12,2,12,1,12,2,12,2,12,1,12,1,12,2,12],[2,12,2,12,1,12,2,12,2,12,2,12,1,12,2,12,2],[12,2,12,1,12,2,12,1,12,1,12,2,12,1,12,2,12],[2,12,1,12,1,12,2,12,5,12,2,12,1,12,2,12,2],[12,2,12,1,12,2,12,1,12,2,12,1,12,2,12,2,12],[2,12,1,12,1,12,2,12,2,12,1,12,2,12,2,12,2],[12,2,12,1,12,2,12,1,12,1,12,2,12,2,12,2,12],[2,8,12,12,2,12,2,12,2,12,2,12,2,12,2,12,2]],
-			"level4": [],
+			"level4": [[0,0,0,7,7,12,2,0,0,0,0,0,12],[0,0,0,7,7,0,2,0,0,0,0,0,4],[4,0,12,7,7,0,2,1,2,2,2,2,2],[1,1,1,7,0,0,2,3,2,4,0,0,0],[0,1,1,0,0,0,0,0,0,0,0,0,0],[12,1,1,1,0,0,0,0,0,0,0,0,1],[11,1,1,5,1,0,10,0,0,0,0,1,6]],
 			"level5": []
 		},
 		"world4": {
@@ -249,7 +252,7 @@ function updateSelection(isWorldSelect, index, disableSFX) {
 screen.clearRect(0, 0, elm.width, elm.height)
 if (!disableSFX) data.sound.select.play()
 var width = 181
-var height = 192
+var height = 224
 if (isWorldSelect) height += 32
 var x = (elm.width - (elm.width / 2)) - (width / 2)
 var y = (elm.height - (elm.height / 2)) - (height / 2)
@@ -387,12 +390,13 @@ if (spotlight) {
 	screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
 	changeMusic(data.sound.music.spotlight)
 }
+if (document.getElementById('developerMenu')) document.getElementById('developerMenu').innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<br><input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
 }
 function randomCustomization(width, height, solidRate, resetterRate, iceRate, hasLever, moneybagAmount, spotlight, index) {
 	scenario = "randomconfig" + index
 	screen.clearRect(0, 0, elm.width, elm.height)
 	var menuwidth = 502
-	var menuheight = 288
+	var menuheight = 352
 	var x = (elm.width - (elm.width / 2)) - (menuwidth / 2)
 	var y = (elm.height - (elm.height / 2)) - (menuheight / 2)
 	screen.drawImage(data.images.arrow, x, y + (index * 32))
@@ -499,6 +503,8 @@ function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 			if (levelData[i][j] == 8) isSpotlight = false
 			if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 13) setBlinking(j, i, 1);
+			if (tileData[i][j] == 14) setBlinking(j, i, 2);
 		}
 		screen.drawImage(data.images.wall, x + (levelData[0].length * 32), y + (i * 32))
 	}
@@ -511,6 +517,7 @@ function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 		screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
 		changeMusic(data.sound.music.spotlight)
 	}
+	if (document.getElementById('developerMenu')) document.getElementById('developerMenu').innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<br><input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
 }
 function move(dir) {
 	if (dir == 'up') {
@@ -717,6 +724,7 @@ function move(dir) {
 			screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
 		}
 	}
+	if (document.getElementById('developerMenu')) document.getElementById('developerMenu').innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<br><input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
 }
 function drawRectangleWithHole(ctx, color, x, y, width, height, holeX, holeY, holeWidth, holeHeight) {
 	ctx.fillStyle = color
@@ -906,6 +914,51 @@ function exportToArray() {
 	}
 	return string
 }
+function setBlinking(x, y, tileID) {
+	console.log(y)
+	console.log(x)
+	console.log(tileID)
+	setInterval(function() {
+		if (blinking && tileData[y][x] != tileID) tileData[y][x] == tileID
+		else if (blinking && tileData[y][x] == tileID) tileData[y][x] == 0
+		screen.clearRect(0, 0, elm.width, elm.height)
+		var x = (elm.width - (elm.width / 2)) - (tileData[0].length * 16)
+		var y = (elm.height - (elm.height / 2)) - (tileData.length * 16)
+		for (var i = -1; i < tileData[0].length + 1; i++) {
+			screen.drawImage(data.images.wall, x + (i * 32), y - 32)
+		}
+		for (var i = 0; i < tileData.length; i++) {
+			screen.drawImage(data.images.wall, x - 32, y + (i * 32))
+			for (var j = 0; j < tileData[0].length; j++) {
+				if (tileData[i][j] == 1) screen.drawImage(data.images.solid, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 2) screen.drawImage(data.images.resetter, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 3) screen.drawImage(data.images.ice, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 4) screen.drawImage(data.images.moneybag, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 8 || tileData[i][j] == 10) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
+				if (tileData[i][j] == 9) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
+			}
+			screen.drawImage(data.images.wall, x + (tileData[0].length * 32), y + (i * 32))
+		}
+		for (var i = -1; i < tileData[0].length + 1; i++) {
+			screen.drawImage(data.images.wall, x + (i * 32), y + (tileData.length * 32))
+		}
+		if (isSpotlight) {
+			if (isTorchSpotlight) {
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
+				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
+			}
+			else {
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 32), y + ((playerPos.y * 32) - 32), 96, 96)
+				screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
+			}
+		}
+	}, 500)
+}
 function executeKeyInput(keycode, keyname) {
 if (scenario == 'menu01' && keycode == 40) {
 updateSelection(true, 1)
@@ -1058,7 +1111,7 @@ if (scenario == 'menu56') scenario = 'menu55'
 return
 }
 if (scenario.includes('randomconfig')) {
-	var index = parseInt(scenario.substr(12, 1))
+	var index = parseInt(scenario.substr(12, 2))
 	if (keycode == 40 && index != 10) index++
 	if (keycode == 38 && index != 0) index--
 	if (keycode == 37) {
@@ -1270,4 +1323,48 @@ if (scenario == "editorgrid") {
 	}
 	openEditorGrid(editor.x, editor.y)
 }
+if (keycode == 9 && developerMode) {
+	var div = document.createElement('div')
+	div.setAttribute('id', 'developerMenu')
+	div.setAttribute('style', 'top: 5px; left: 5px; position: absolute; padding: 5px; width: 300px; height: 250px; border: 1px solid black; background-color: white')
+	div.innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<br><input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
+	document.body.appendChild(div)
+}
+}
+function getVar(varName) {
+	var value = eval(varName)
+	alert(value + "\nType: " + typeof eval(varName))
+}
+function setVar(varName) {
+	var value
+	if (typeof eval(varName) == "number") value = parseInt(prompt('New value\nType: number'))
+	if (typeof eval(varName) == "boolean") {
+		var value = prompt('New value\nType: boolean')
+		if (value == "true") value = true
+		else value = false
+	}
+	if (typeof eval(varName) == "object") value = JSON.parse(prompt('New value\nType: object'))
+	if (typeof eval(varName) == "string") value = prompt('New alue\nType: string')
+	eval(varName + ' = ' + value)
+	alert('Changed variable ' + varName + ' to ' + value + '.')
+}
+function getTileData() {
+	var html = ""
+	var index = 0
+	for (var i = 0; i < tileData.length; i++) {
+		html += "<div style=\"width: " + (tileData[i].length * 30) + "px\">"
+		for (var j = 0; j < tileData[i].length; j++) {
+			html += "<button style=\"height: 21px; width: 30px\" id=\"tileDataButton" + index + "\" onclick=\"setTileData(" + index + ", " + j + ", " + i + ")\">" + tileData[i][j] + "</button>"
+			index++
+		}
+		html += "</div>"
+	}
+	return html
+}
+function setTileData(index, x, y) {
+	document.getElementById('tileDataButton' + index)
+	tileData[y][x] = parseInt(prompt('Set a new integer value'))
+	if (isNaN(tileData[y][x])) tileData[y][x] = 0
+	document.getElementById('tileDataButton' + index).innerHTML = tileData[y][x]
+	document.getElementById('tileDataButton' + index).blur()
 }

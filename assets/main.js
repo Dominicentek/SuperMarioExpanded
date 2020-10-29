@@ -1,4 +1,4 @@
-var developerMode = false
+var developerMode = true
 
 var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3, "spotlight": false, "seed": ""}
 var editorConfig = {"width": 10, "height": 10, "spotlight": false}
@@ -1337,14 +1337,16 @@ if (scenario == "editorgrid") {
 		else if (editor.item == "mario") editor.item = "door"
 		else if (editor.item == "door") editor.item = "lever"
 		else if (editor.item == "lever") editor.item = "flag"
-		else if (editor.item == "flag") editor.item = "ice"
+		else if (editor.item == "flag") editor.item = "moneybag"
+		else if (editor.item == "moneybag") editor.item = "ice"
 		else if (editor.item == "ice") editor.item = "resetter"
 		else if (editor.item == "resetter") editor.item = "solid"
 	}
 	if (keycode == 77) {
 		if (editor.item == "solid") editor.item = "resetter"
 		else if (editor.item == "resetter") editor.item = "ice"
-		else if (editor.item == "ice") editor.item = "flag"
+		else if (editor.item == "ice") editor.item = "moneybag"
+		else if (editor.item == "moneybag") editor.item = "flag"
 		else if (editor.item == "flag") editor.item = "lever"
 		else if (editor.item == "lever") editor.item = "door"
 		else if (editor.item == "door") editor.item = "mario"

@@ -1,4 +1,4 @@
-var developerMode = true
+var developerMode = false
 
 var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3, "spotlight": false, "seed": ""}
 var editorConfig = {"width": 10, "height": 10, "spotlight": false}

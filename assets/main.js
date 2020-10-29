@@ -1,4 +1,4 @@
-var developerMode = false
+var developerMode = true
 
 var randomLevelConfig = {"width": 10, "height": 10, "solidRate": 1, "resetterRate": 1, "iceRate": 1, "hasLever": true, "moneybagAmount": 3, "spotlight": false, "seed": ""}
 var editorConfig = {"width": 10, "height": 10, "spotlight": false}
@@ -22,6 +22,28 @@ var hasPickaxe = false
 var world = 1
 var level = 1
 var blinking = true;
+var blinkData = [];
+/* List of tile IDs
+ * 00 Air
+ * 01 Green Block
+ * 02 Red Block
+ * 03 Ice
+ * 04 Moneybag
+ * 05 Flag
+ * 06 Lever (Off)
+ * 07 Black Block
+ * 08 Mario
+ * 09 Lever (On)
+ * 10 Spotlight Mario
+ * 11 Torch
+ * 12 Pickaxe
+ * 13 Blinking Green Block
+ * 14 Blinking Red Block
+ * 15 Blink Lever (Off)
+ * 16 Blink Lever (On)
+ * 17 Just turned off blink lever
+ * 18 Just turned on blink lever
+*/
 var data = {
 	"images": {
 		"solid": new Image,
@@ -96,6 +118,10 @@ var data = {
 				"thirteen": new Image,
 				"fourteen": new Image,
 				"fifteen": new Image
+			},
+			"letters": {
+				"m": new Image,
+				"n": new Image
 			}
 		}
 	},
@@ -137,7 +163,7 @@ var data = {
 			"level5": []
 		},
 		"world4": {
-			"level1": [],
+			"level1": [[13,14,8]],
 			"level2": [],
 			"level3": [],
 			"level4": [],
@@ -218,9 +244,55 @@ data.images.buttons.numbers.twelve.src = "./assets/images/buttons/numbers/twelve
 data.images.buttons.numbers.thirteen.src = "./assets/images/buttons/numbers/thirteen.png"
 data.images.buttons.numbers.fourteen.src = "./assets/images/buttons/numbers/fourteen.png"
 data.images.buttons.numbers.fifteen.src = "./assets/images/buttons/numbers/fifteen.png"
+data.images.buttons.letters.m.src = "./assets/images/buttons/letters/m.png"
+data.images.buttons.letters.n.src = "./assets/images/buttons/letters/n.png"
 window.onkeydown = function(event) {
 executeKeyInput(event.keyCode, event.code)
 }
+setInterval(function() {
+	if (scenario == "level") {
+		for (var i = 0; i < blinkData.length; i++) {
+			if (blinking && tileData[blinkData[i][1]][blinkData[i][0]] != blinkData[i][2] && !(playerPos.x == blinkData[i][0] && playerPos.y == blinkData[i][1])) tileData[blinkData[i][1]][blinkData[i][0]] = blinkData[i][2]
+			else if (blinking && tileData[blinkData[i][1]][blinkData[i][0]] == blinkData[i][2]) tileData[blinkData[i][1]][blinkData[i][0]] = 0
+		}
+		screen.clearRect(0, 0, elm.width, elm.height)
+		var x = (elm.width - (elm.width / 2)) - (tileData[0].length * 16)
+		var y = (elm.height - (elm.height / 2)) - (tileData.length * 16)
+		for (var i = -1; i < tileData[0].length + 1; i++) {
+			screen.drawImage(data.images.wall, x + (i * 32), y - 32)
+		}
+		for (var i = 0; i < tileData.length; i++) {
+			screen.drawImage(data.images.wall, x - 32, y + (i * 32))
+			for (var j = 0; j < tileData[0].length; j++) {
+				if (tileData[i][j] == 1) screen.drawImage(data.images.solid, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 2) screen.drawImage(data.images.resetter, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 3) screen.drawImage(data.images.ice, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 4) screen.drawImage(data.images.moneybag, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 8 || tileData[i][j] == 10) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
+				if (tileData[i][j] == 9) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
+			}
+			screen.drawImage(data.images.wall, x + (tileData[0].length * 32), y + (i * 32))
+		}
+		for (var i = -1; i < tileData[0].length + 1; i++) {
+			screen.drawImage(data.images.wall, x + (i * 32), y + (tileData.length * 32))
+		}
+		if (isSpotlight) {
+			if (isTorchSpotlight) {
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
+				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
+			}
+			else {
+				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 32), y + ((playerPos.y * 32) - 32), 96, 96)
+				screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
+			}
+		}
+	}
+}, 500)
 function getCursorPosition(canvas, event) {
     const rect = canvas.getBoundingClientRect()
     const x = event.clientX - rect.left
@@ -460,6 +532,7 @@ function randomCustomization(width, height, solidRate, resetterRate, iceRate, ha
 	if (!spotlight) screen.drawImage(data.images.buttons.false, x + 392, y + 224)
 }
 function renderLevel(levelData, isRandomPlay, isEditorPlay) {
+	resetBlinking()
 	isRandom = false
 	isEditor = false
 	isTorchSpotlight = false
@@ -517,7 +590,7 @@ function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 		screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
 		changeMusic(data.sound.music.spotlight)
 	}
-	if (document.getElementById('developerMenu')) document.getElementById('developerMenu').innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<br><input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
+	if (document.getElementById('developerMenu')) document.getElementById('developerMenu').innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button><br><button onclick=\"forceLoadLevel()\">Load Level</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
 }
 function move(dir) {
 	if (dir == 'up') {
@@ -724,7 +797,7 @@ function move(dir) {
 			screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
 		}
 	}
-	if (document.getElementById('developerMenu')) document.getElementById('developerMenu').innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<br><input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
+	if (document.getElementById('developerMenu')) document.getElementById('developerMenu').innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button><br><button onclick=\"forceLoadLevel()\">Load Level</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
 }
 function drawRectangleWithHole(ctx, color, x, y, width, height, holeX, holeY, holeWidth, holeHeight) {
 	ctx.fillStyle = color
@@ -826,6 +899,12 @@ function openEditorGrid(selX, selY, reset) {
 			if (editor.data[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
 			if (editor.data[i][j] == 8 || editor.data[i][j] == 10) screen.drawImage(data.images.mario, x + (j * 32), y + (i * 32))
 			if (editor.data[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
+			screen.globalAlpha = 0.5;
+			if (editor.data[i][j] == 13) screen.drawImage(data.images.solid, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 14) screen.drawImage(data.images.resetter, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 15) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
+			screen.globalAlpha = 1;
 			if (i == selY && j == selX) screen.drawImage(data.images.editor.selected, x + (j * 32), y + (i * 32))
 		}
 	}
@@ -836,27 +915,28 @@ function openEditorGrid(selX, selY, reset) {
 			editor.origData[i].push(editor.data[i][j])
 		}
 	}
-	screen.drawImage(data.images.buttons.numbers.one, 16, 16)
-	screen.drawImage(data.images.buttons.numbers.two, 16, 48)
-	screen.drawImage(data.images.buttons.numbers.three, 16, 80)
-	screen.drawImage(data.images.buttons.numbers.four, 16, 112)
-	screen.drawImage(data.images.buttons.numbers.five, 16, 144)
-	screen.drawImage(data.images.buttons.numbers.six, 16, 176)
-	screen.drawImage(data.images.buttons.numbers.seven, 16, 208)
-	screen.drawImage(data.images.buttons.numbers.eight, 16, 240)
-	screen.drawImage(data.images.buttons.numbers.nine, 16, 272)
-	screen.drawImage(data.images.buttons.numbers.zero, 16, 304)
-	screen.drawImage(data.images.solid, 64, 16)
-	screen.drawImage(data.images.resetter, 64, 48)
-	screen.drawImage(data.images.ice, 64, 80)
-	screen.drawImage(data.images.moneybag, 64, 112)
-	screen.drawImage(data.images.flag, 64, 144)
-	screen.drawImage(data.images.lever.off, 64, 176)
-	screen.drawImage(data.images.door, 64, 208)
-	screen.drawImage(data.images.mario, 64, 240)
-	screen.drawImage(data.images.torch, 64, 272)
-	screen.drawImage(data.images.buttons.playtext, 48, 304)
-	screen.drawImage(data.images.buttons.editorbacktext, 16, elm.height - 42)
+	if (editor.item == "solid") screen.drawImage(data.images.solid, 48, 8)
+	if (editor.item == "resetter") screen.drawImage(data.images.resetter, 48, 8)
+	if (editor.item == "ice") screen.drawImage(data.images.ice, 48, 8)
+	if (editor.item == "moneybag") screen.drawImage(data.images.moneybag, 48, 8)
+	if (editor.item == "flag") screen.drawImage(data.images.flag, 48, 8)
+	if (editor.item == "lever") screen.drawImage(data.images.lever.off, 48, 8)
+	if (editor.item == "door") screen.drawImage(data.images.door, 48, 8)
+	if (editor.item == "mario") screen.drawImage(data.images.mario, 48, 8)
+	if (editor.item == "torch") screen.drawImage(data.images.torch, 48, 8)
+	if (editor.item == "pickaxe") screen.drawImage(data.images.pickaxe, 48, 8)
+	screen.globalAlpha = 0.5;
+	if (editor.item == "blinkSolid") screen.drawImage(data.images.solid, 48, 8)
+	if (editor.item == "blinkResetter") screen.drawImage(data.images.resetter, 48, 8)
+	if (editor.item == "blinkLever") screen.drawImage(data.images.lever.off, 48, 8)
+	screen.globalAlpha = 1;
+	screen.drawImage(data.images.flippedArrow, 8, 8)
+	screen.drawImage(data.images.arrow, 88, 8)
+	screen.drawImage(data.images.buttons.letters.n, 8, 48)
+	screen.drawImage(data.images.buttons.letters.m, 88, 48)
+	screen.drawImage(data.images.buttons.numbers.one, 8, 128)
+	screen.drawImage(data.images.buttons.playtext, 54, 128)
+	screen.drawImage(data.images.buttons.editorbacktext, 8, elm.height - 42)
 }
 function scan(item) {
 	var found = false
@@ -914,50 +994,12 @@ function exportToArray() {
 	}
 	return string
 }
-function setBlinking(x, y, tileID) {
-	console.log(y)
-	console.log(x)
-	console.log(tileID)
-	setInterval(function() {
-		if (blinking && tileData[y][x] != tileID) tileData[y][x] == tileID
-		else if (blinking && tileData[y][x] == tileID) tileData[y][x] == 0
-		screen.clearRect(0, 0, elm.width, elm.height)
-		var x = (elm.width - (elm.width / 2)) - (tileData[0].length * 16)
-		var y = (elm.height - (elm.height / 2)) - (tileData.length * 16)
-		for (var i = -1; i < tileData[0].length + 1; i++) {
-			screen.drawImage(data.images.wall, x + (i * 32), y - 32)
-		}
-		for (var i = 0; i < tileData.length; i++) {
-			screen.drawImage(data.images.wall, x - 32, y + (i * 32))
-			for (var j = 0; j < tileData[0].length; j++) {
-				if (tileData[i][j] == 1) screen.drawImage(data.images.solid, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 2) screen.drawImage(data.images.resetter, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 3) screen.drawImage(data.images.ice, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 4) screen.drawImage(data.images.moneybag, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 8 || tileData[i][j] == 10) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
-				if (tileData[i][j] == 9) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
-			}
-			screen.drawImage(data.images.wall, x + (tileData[0].length * 32), y + (i * 32))
-		}
-		for (var i = -1; i < tileData[0].length + 1; i++) {
-			screen.drawImage(data.images.wall, x + (i * 32), y + (tileData.length * 32))
-		}
-		if (isSpotlight) {
-			if (isTorchSpotlight) {
-				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 64), y + ((playerPos.y * 32) - 64), 160, 160)
-				screen.drawImage(data.images.torch_spotlight, x + (playerPos.x * 32) - 64, y + (playerPos.y * 32) - 64)
-			}
-			else {
-				drawRectangleWithHole(screen, "black", 0, 0, elm.width, elm.height, x + ((playerPos.x * 32) - 32), y + ((playerPos.y * 32) - 32), 96, 96)
-				screen.drawImage(data.images.spotlight, x + (playerPos.x * 32) - 32, y + (playerPos.y * 32) - 32)
-			}
-		}
-	}, 500)
+function resetBlinking() {
+	blinkData = []
+	console.log("I have been triggered.")
+}
+function setBlinking(blinkX, blinkY, tileIndex) {
+	blinkData.push([blinkX, blinkY, tileIndex])
 }
 function executeKeyInput(keycode, keyname) {
 if (scenario == 'menu01' && keycode == 40) {
@@ -1237,6 +1279,11 @@ if (scenario == 'level') {
 	if (keycode == 39) move('right')
 	if (keycode == 40) move('down')
 	if (keycode == 16 && keyname != "ShiftRight") {
+		resetBlinking()
+		if (isEditor) {
+			returnToEditor()
+			return;
+		}
 		updateSelection(true, 0, true)
 		scenario = "menu01"
 		changeMusic(data.sound.music.menu)
@@ -1281,21 +1328,39 @@ if (scenario == "editorgrid") {
 	if (keycode == 38 && editor.y != 0) editor.y--
 	if (keycode == 39 && editor.x != editorConfig.width - 1) editor.x++
 	if (keycode == 40 && editor.y != editorConfig.height - 1) editor.y++
-	if (keycode == 49) editor.item = "solid"
-	if (keycode == 50) editor.item = "resetter"
-	if (keycode == 51) editor.item = "ice"
-	if (keycode == 52) editor.item = "moneybag"
-	if (keycode == 53) editor.item = "flag"
-	if (keycode == 54) editor.item = "lever"
-	if (keycode == 55) editor.item = "door"
-	if (keycode == 56) editor.item = "mario"
-	if (keycode == 57) editor.item = "torch"
-	if (keycode == 48) {
+	if (keycode == 78) {
+		if (editor.item == "blinkLever") editor.item = "blinkResetter"
+		else if (editor.item == "blinkResetter") editor.item = "blinkSolid"
+		else if (editor.item == "blinkSolid") editor.item = "pickaxe"
+		else if (editor.item == "pickaxe") editor.item = "torch"
+		else if (editor.item == "torch") editor.item = "mario"
+		else if (editor.item == "mario") editor.item = "door"
+		else if (editor.item == "door") editor.item = "lever"
+		else if (editor.item == "lever") editor.item = "flag"
+		else if (editor.item == "flag") editor.item = "ice"
+		else if (editor.item == "ice") editor.item = "resetter"
+		else if (editor.item == "resetter") editor.item = "solid"
+	}
+	if (keycode == 77) {
+		if (editor.item == "solid") editor.item = "resetter"
+		else if (editor.item == "resetter") editor.item = "ice"
+		else if (editor.item == "ice") editor.item = "flag"
+		else if (editor.item == "flag") editor.item = "lever"
+		else if (editor.item == "lever") editor.item = "door"
+		else if (editor.item == "door") editor.item = "mario"
+		else if (editor.item == "mario") editor.item = "torch"
+		else if (editor.item == "torch") editor.item = "pickaxe"
+		else if (editor.item == "pickaxe") editor.item = "blinkSolid"
+		else if (editor.item == "blinkSolid") editor.item = "blinkResetter"
+		// else if (editor.item == "blinkResetter") editor.item = "blinkLever"
+	}
+	if (keycode == 49) {
 		if (scan("flag") && scan("mario")) renderLevel(editor.data, false, true)
 		else data.sound.block.play()
 		return
 	}
 	if (keycode == 16 && keyname != "ShiftRight") {
+		resetBlinking()
 		scenario = "menu01"
 		updateSelection(true, 0, true)
 		data.sound.back.play()
@@ -1313,6 +1378,10 @@ if (scenario == "editorgrid") {
 			else if (editor.item == "mario" && !scan("mario") && !editorConfig.spotlight) editor.data[editor.y][editor.x] = 8
 			else if (editor.item == "mario" && !scan("mario") && editorConfig.spotlight) editor.data[editor.y][editor.x] = 10
 			else if (editor.item == "torch") editor.data[editor.y][editor.x] = 11
+			else if (editor.item == "pickaxe") editor.data[editor.y][editor.x] = 12
+			else if (editor.item == "blinkSolid") editor.data[editor.y][editor.x] = 13
+			else if (editor.item == "blinkResetter") editor.data[editor.y][editor.x] = 14
+			else if (editor.item == "blinkLever") editor.data[editor.y][editor.x] = 15
 			else data.sound.block.play()
 		}
 		else editor.data[editor.y][editor.x] = 0
@@ -1327,7 +1396,7 @@ if (keycode == 9 && developerMode) {
 	var div = document.createElement('div')
 	div.setAttribute('id', 'developerMenu')
 	div.setAttribute('style', 'top: 5px; left: 5px; position: absolute; padding: 5px; width: 300px; height: 250px; border: 1px solid black; background-color: white')
-	div.innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<br><input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
+	div.innerHTML = "<div style=\"overflow: scroll; width: 100%; height: calc(100% - 26px)\">" + getTileData() + "<input type=\"text\" id=\"getVariable\"><button onclick=\"getVar(document.getElementById('getVariable').value)\">Get variable</button><br><input type=\"text\" id=\"setVariable\"><button onclick=\"setVar(document.getElementById('setVariable').value)\">Set variable</button><br><button onclick=\"forceLoadLevel()\">Load Level</button></div><button onclick=\"document.getElementById('developerMenu').remove()\" style=\"width: 100%; height: 21px; bottom: 0px; left: 0px; postion: absolute\">Close</button>"
 	document.body.appendChild(div)
 }
 }
@@ -1359,6 +1428,7 @@ function getTileData() {
 		}
 		html += "</div>"
 	}
+	if (html != "") html += "<br>"
 	return html
 }
 function setTileData(index, x, y) {
@@ -1367,4 +1437,10 @@ function setTileData(index, x, y) {
 	if (isNaN(tileData[y][x])) tileData[y][x] = 0
 	document.getElementById('tileDataButton' + index).innerHTML = tileData[y][x]
 	document.getElementById('tileDataButton' + index).blur()
+}
+function forceLoadLevel() {
+	var wrl = parseInt(prompt("World"))
+	var lvl = parseInt(prompt("Level"))
+	if (!data.levels["world" + wrl]["level" + lvl]) alert("This level doesn't exist.")
+	else renderLevel(data.levels["world" + wrl]["level" + lvl])
 }

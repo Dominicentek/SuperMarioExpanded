@@ -23,27 +23,6 @@ var world = 1
 var level = 1
 var blinking = true;
 var blinkData = [];
-/* List of tile IDs
- * 00 Air
- * 01 Green Block
- * 02 Red Block
- * 03 Ice
- * 04 Moneybag
- * 05 Flag
- * 06 Lever (Off)
- * 07 Black Block
- * 08 Mario
- * 09 Lever (On)
- * 10 Spotlight Mario
- * 11 Torch
- * 12 Pickaxe
- * 13 Blinking Green Block
- * 14 Blinking Red Block
- * 15 Blink Lever (Off)
- * 16 Blink Lever (On)
- * 17 Just turned off blink lever
- * 18 Just turned on blink lever
-*/
 var data = {
 	"images": {
 		"solid": new Image,
@@ -60,6 +39,12 @@ var data = {
 		"ice": new Image,
 		"torch": new Image,
 		"pickaxe": new Image,
+		"oneways": {
+			"up": new Image,
+			"ĺeft": new Image,
+			"down": new Image,
+			"right": new Image
+		},
 		"arrow": new Image,
 		"flippedArrow": new Image,
 		"title": new Image,
@@ -170,10 +155,10 @@ var data = {
 			"level5": [[0,0,0,1,0,1,0,7,4,1,0,0,0,1,0],[1,1,0,1,0,1,0,1,1,1,0,1,1,1,0],[0,13,0,0,0,1,0,0,0,1,0,13,0,0,0],[7,1,1,1,0,1,0,1,0,1,0,1,0,1,1],[5,1,0,0,0,13,0,1,0,0,0,1,0,0,0],[1,1,0,1,0,1,1,1,13,1,1,1,0,1,0],[0,1,0,1,0,1,0,0,0,0,0,0,0,1,0],[0,1,0,1,1,1,0,10,0,1,1,1,0,1,0],[0,13,0,0,0,1,0,0,0,14,14,1,0,0,0],[0,1,0,1,1,1,1,1,1,1,14,1,14,1,1],[0,1,0,1,0,0,12,1,14,14,14,14,14,1,14],[1,1,0,1,13,1,1,1,14,1,14,1,14,1,14],[4,1,0,0,0,0,0,14,14,1,14,14,14,14,14],[7,1,0,1,1,1,7,1,1,1,14,1,1,1,1],[0,13,0,0,6,1,0,0,4,1,14,14,14,14,11]]
 		},
 		"world5": {
-			"level1": [],
-			"level2": [],
-			"level3": [],
-			"level4": [],
+			"level1": [[8,20,0,0,0,0,0,0,0],[1,1,0,0,0,0,0,0,0],[0,3,0,0,0,0,0,5,0],[17,1,0,0,0,1,1,1,1],[4,18,0,0,0,20,0,0,0],[1,1,0,0,0,20,0,4,0],[4,20,0,0,0,20,12,0,12]],
+			"level2": [[8,20,0,18,0,0,0,18,0,12,1,5],[1,1,0,18,0,6,0,18,0,0,1,14],[0,18,0,18,0,0,0,18,0,0,1,3],[3,2,19,1,1,1,1,1,19,1,1,3],[4,2,7,1,2,2,2,19,4,18,1,3],[0,20,0,20,19,19,19,3,2,0,1,3],[14,1,1,1,7,7,7,12,20,0,1,3],[14,14,14,1,0,0,0,2,1,0,18,0],[14,14,14,20,0,4,0,20,0,0,18,0],[14,14,14,1,0,0,0,20,0,0,18,0]],
+			"level3": [[17,20,19,19,4,20,17,20,19,4,20],[19,20,17,19,17,19,20,18,18,18,20],[20,20,19,19,20,20,20,20,20,19,18],[17,20,17,17,19,18,18,20,18,19,18],[19,17,19,19,19,17,20,18,19,20,18],[20,18,18,17,20,18,17,19,18,18,18],[18,19,20,20,17,18,18,18,18,17,20],[18,18,18,5,19,18,20,19,18,20,18],[19,18,18,18,19,19,20,17,20,18,20],[20,17,18,20,20,18,19,4,19,18,19],[17,17,17,18,17,18,19,20,18,19,8]],
+			"level4": [[0,7,18,0,0,2,0,18,0],[12,0,1,0,0,0,0,14,0],[1,0,20,0,0,2,0,2,4],[1,1,20,0,0,2,2,2,2],[4,1,1,0,0,0,0,5,0],[7,1,0,0,0,0,0,1,14],[10,20,0,0,0,0,4,1,6]],
 			"level5": [[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,8,4,5,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],[4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]] 
 		}
 	}
@@ -190,6 +175,10 @@ data.images.wall.src = "./assets/images/wall.png"
 data.images.ice.src = "./assets/images/ice.png"
 data.images.torch.src = "./assets/images/torch.png"
 data.images.pickaxe.src = "./assets/images/pickaxe.png"
+data.images.oneways.up.src = "./assets/images/oneways/up.png"
+data.images.oneways.left.src = "./assets/images/oneways/left.png"
+data.images.oneways.down.src = "./assets/images/oneways/down.png"
+data.images.oneways.right.src = "./assets/images/oneways/right.png"
 data.images.arrow.src = "./assets/images/arrow.png"
 data.images.flippedArrow.src = "./assets/images/flippedArrow.png"
 data.images.title.src = "./assets/images/title.png"
@@ -250,7 +239,7 @@ window.onkeydown = function(event) {
 executeKeyInput(event.keyCode, event.code)
 }
 setInterval(function() {
-	if (scenario == "level") {
+	if (scenario == "level" && blinking) {
 		for (var i = 0; i < blinkData.length; i++) {
 			if (blinking && tileData[blinkData[i][1]][blinkData[i][0]] != blinkData[i][2] && !(playerPos.x == blinkData[i][0] && playerPos.y == blinkData[i][1])) tileData[blinkData[i][1]][blinkData[i][0]] = blinkData[i][2]
 			else if (blinking && tileData[blinkData[i][1]][blinkData[i][0]] == blinkData[i][2]) tileData[blinkData[i][1]][blinkData[i][0]] = 0
@@ -271,13 +260,21 @@ setInterval(function() {
 				if (tileData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
 				if (tileData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
 				if (tileData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
-				if (tileData[i][j] == 8 || tileData[i][j] == 10) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
 				if (tileData[i][j] == 9) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
 				if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
 				if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
+				screen.globalAlpha = 0.5
+				if (tileData[i][j] == 15) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 16) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
+				screen.globalAlpha = 1
+				if (tileData[i][j] == 17) screen.drawImage(data.images.oneways.up, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 18) screen.drawImage(data.images.oneways.left, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 19) screen.drawImage(data.images.oneways.down, x + (j * 32), y + (i * 32))
+				if (tileData[i][j] == 20) screen.drawImage(data.images.oneways.right, x + (j * 32), y + (i * 32))
 			}
 			screen.drawImage(data.images.wall, x + (tileData[0].length * 32), y + (i * 32))
 		}
+		screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
 		for (var i = -1; i < tileData[0].length + 1; i++) {
 			screen.drawImage(data.images.wall, x + (i * 32), y + (tileData.length * 32))
 		}
@@ -578,6 +575,14 @@ function renderLevel(levelData, isRandomPlay, isEditorPlay) {
 			if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 13) setBlinking(j, i, 1);
 			if (tileData[i][j] == 14) setBlinking(j, i, 2);
+			screen.globalAlpha = 0.5
+			if (tileData[i][j] == 15) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 16) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
+			screen.globalAlpha = 1
+			if (tileData[i][j] == 17) screen.drawImage(data.images.oneways.up, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 18) screen.drawImage(data.images.oneways.left, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 19) screen.drawImage(data.images.oneways.down, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 20) screen.drawImage(data.images.oneways.right, x + (j * 32), y + (i * 32))
 		}
 		screen.drawImage(data.images.wall, x + (levelData[0].length * 32), y + (i * 32))
 	}
@@ -596,7 +601,7 @@ function move(dir) {
 	if (dir == 'up') {
 		playerPos.y--
 		if (playerPos.y == -1) playerPos.y++
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 19) {
 			playerPos.y++
 			if (hasPickaxe) {
 				hasPickaxe = false
@@ -634,11 +639,21 @@ function move(dir) {
 			hasPickaxe = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 15) {
+			tileData[playerPos.y][playerPos.x] = 16
+			blinking = true
+			data.sound.switchlever.play()
+		}
+		else if (tileData[playerPos.y][playerPos.x] == 16) {
+			tileData[playerPos.y][playerPos.x] = 15
+			blinking = false
+			data.sound.switchlever.play()
+		}
 	}
 	if (dir == 'down') {
 		playerPos.y++
 		if (playerPos.y == tileData.length) playerPos.y--
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 17) {
 			playerPos.y--
 			if (hasPickaxe) {
 				hasPickaxe = false
@@ -676,11 +691,21 @@ function move(dir) {
 			hasPickaxe = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 15) {
+			tileData[playerPos.y][playerPos.x] = 16
+			blinking = true
+			data.sound.switchlever.play()
+		}
+		else if (tileData[playerPos.y][playerPos.x] == 16) {
+			tileData[playerPos.y][playerPos.x] = 15
+			blinking = false
+			data.sound.switchlever.play()
+		}
 	}
 	if (dir == 'left') {
 		playerPos.x--
 		if (playerPos.x == -1) playerPos.x++
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 20) {
 			playerPos.x++
 			if (hasPickaxe) {
 				hasPickaxe = false
@@ -718,11 +743,21 @@ function move(dir) {
 			hasPickaxe = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 15) {
+			tileData[playerPos.y][playerPos.x] = 16
+			blinking = true
+			data.sound.switchlever.play()
+		}
+		else if (tileData[playerPos.y][playerPos.x] == 16) {
+			tileData[playerPos.y][playerPos.x] = 15
+			blinking = false
+			data.sound.switchlever.play()
+		}
 	}
 	if (dir == 'right') {
 		playerPos.x++
 		if (playerPos.x == tileData[0].length) playerPos.x--
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 18) {
 			playerPos.x--
 			if (hasPickaxe) {
 				hasPickaxe = false
@@ -760,6 +795,16 @@ function move(dir) {
 			hasPickaxe = true
 			data.sound.ok.play()
 		}
+		if (tileData[playerPos.y][playerPos.x] == 15) {
+			tileData[playerPos.y][playerPos.x] = 16
+			blinking = true
+			data.sound.switchlever.play()
+		}
+		else if (tileData[playerPos.y][playerPos.x] == 16) {
+			tileData[playerPos.y][playerPos.x] = 15
+			blinking = false
+			data.sound.switchlever.play()
+		}
 	}
 	screen.clearRect(0, 0, elm.width, elm.height)
 	var x = (elm.width - (elm.width / 2)) - (tileData[0].length * 16)
@@ -777,13 +822,21 @@ function move(dir) {
 			if (tileData[i][j] == 5) screen.drawImage(data.images.flag, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 6) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 7) screen.drawImage(data.images.door, x + (j * 32), y + (i * 32))
-			if (tileData[i][j] == 8 || tileData[i][j] == 10) screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
 			if (tileData[i][j] == 9) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 11) screen.drawImage(data.images.torch, x + (j * 32), y + (i * 32))
 			if (tileData[i][j] == 12) screen.drawImage(data.images.pickaxe, x + (j * 32), y + (i * 32))
+			screen.globalAlpha = 0.5
+			if (tileData[i][j] == 15) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 16) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
+			screen.globalAlpha = 1
+			if (tileData[i][j] == 17) screen.drawImage(data.images.oneways.up, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 18) screen.drawImage(data.images.oneways.left, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 19) screen.drawImage(data.images.oneways.down, x + (j * 32), y + (i * 32))
+			if (tileData[i][j] == 20) screen.drawImage(data.images.oneways.right, x + (j * 32), y + (i * 32))
 		}
 		screen.drawImage(data.images.wall, x + (tileData[0].length * 32), y + (i * 32))
 	}
+	screen.drawImage(data.images.mario, x + (playerPos.x * 32), y + (playerPos.y * 32))
 	for (var i = -1; i < tileData[0].length + 1; i++) {
 		screen.drawImage(data.images.wall, x + (i * 32), y + (tileData.length * 32))
 	}
@@ -903,8 +956,12 @@ function openEditorGrid(selX, selY, reset) {
 			screen.globalAlpha = 0.5;
 			if (editor.data[i][j] == 13) screen.drawImage(data.images.solid, x + (j * 32), y + (i * 32))
 			if (editor.data[i][j] == 14) screen.drawImage(data.images.resetter, x + (j * 32), y + (i * 32))
-			if (editor.data[i][j] == 15) screen.drawImage(data.images.lever.off, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 16) screen.drawImage(data.images.lever.on, x + (j * 32), y + (i * 32))
 			screen.globalAlpha = 1;
+			if (editor.data[i][j] == 17) screen.drawImage(data.images.oneways.up, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 18) screen.drawImage(data.images.oneways.left, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 19) screen.drawImage(data.images.oneways.down, x + (j * 32), y + (i * 32))
+			if (editor.data[i][j] == 20) screen.drawImage(data.images.oneways.right, x + (j * 32), y + (i * 32))
 			if (i == selY && j == selX) screen.drawImage(data.images.editor.selected, x + (j * 32), y + (i * 32))
 		}
 	}
@@ -930,6 +987,10 @@ function openEditorGrid(selX, selY, reset) {
 	if (editor.item == "blinkResetter") screen.drawImage(data.images.resetter, 48, 8)
 	if (editor.item == "blinkLever") screen.drawImage(data.images.lever.off, 48, 8)
 	screen.globalAlpha = 1;
+	if (editor.item == "onewaysUp") screen.drawImage(data.images.oneways.up, 48, 8)
+	if (editor.item == "onewaysLeft") screen.drawImage(data.images.oneways.left, 48, 8)
+	if (editor.item == "onewaysDown") screen.drawImage(data.images.oneways.down, 48, 8)
+	if (editor.item == "onewaysRight") screen.drawImage(data.images.oneways.right, 48, 8)
 	screen.drawImage(data.images.flippedArrow, 8, 8)
 	screen.drawImage(data.images.arrow, 88, 8)
 	screen.drawImage(data.images.buttons.letters.n, 8, 48)
@@ -1329,7 +1390,11 @@ if (scenario == "editorgrid") {
 	if (keycode == 39 && editor.x != editorConfig.width - 1) editor.x++
 	if (keycode == 40 && editor.y != editorConfig.height - 1) editor.y++
 	if (keycode == 78) {
-		if (editor.item == "blinkLever") editor.item = "blinkResetter"
+		if (editor.item == "onewayRight") editor.item = "onewayDown"
+		else if (editor.item == "onewayDown") editor.item = "onewayLeft"
+		else if (editor.item == "onewayLeft") editor.item = "onewayUp"
+		else if (editor.item == "onewayUp") editor.item = "blinkLever"
+		else if (editor.item == "blinkLever") editor.item = "blinkResetter"
 		else if (editor.item == "blinkResetter") editor.item = "blinkSolid"
 		else if (editor.item == "blinkSolid") editor.item = "pickaxe"
 		else if (editor.item == "pickaxe") editor.item = "torch"
@@ -1354,7 +1419,11 @@ if (scenario == "editorgrid") {
 		else if (editor.item == "torch") editor.item = "pickaxe"
 		else if (editor.item == "pickaxe") editor.item = "blinkSolid"
 		else if (editor.item == "blinkSolid") editor.item = "blinkResetter"
-		// else if (editor.item == "blinkResetter") editor.item = "blinkLever"
+		else if (editor.item == "blinkResetter") editor.item = "blinkLever"
+		else if (editor.item == "blinkLever") editor.item = "onewayUp"
+		else if (editor.item == "onewayUp") editor.item = "onewayLeft"
+		else if (editor.item == "onewayLeft") editor.item = "onewayDown"
+		else if (editor.item == "onewayDown") editor.item = "onewayRight"
 	}
 	if (keycode == 49) {
 		if (scan("flag") && scan("mario")) renderLevel(editor.data, false, true)
@@ -1383,7 +1452,11 @@ if (scenario == "editorgrid") {
 			else if (editor.item == "pickaxe") editor.data[editor.y][editor.x] = 12
 			else if (editor.item == "blinkSolid") editor.data[editor.y][editor.x] = 13
 			else if (editor.item == "blinkResetter") editor.data[editor.y][editor.x] = 14
-			else if (editor.item == "blinkLever") editor.data[editor.y][editor.x] = 15
+			else if (editor.item == "blinkLever") editor.data[editor.y][editor.x] = 16
+			else if (editor.item == "onewayUp") editor.data[editor.y][editor.x] = 17
+			else if (editor.item == "onewayLeft") editor.data[editor.y][editor.x] = 18
+			else if (editor.item == "onewayDown") editor.data[editor.y][editor.x] = 19
+			else if (editor.item == "onewayRight") editor.data[editor.y][editor.x] = 20
 			else data.sound.block.play()
 		}
 		else editor.data[editor.y][editor.x] = 0

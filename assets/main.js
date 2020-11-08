@@ -601,7 +601,7 @@ function move(dir) {
 	if (dir == 'up') {
 		playerPos.y--
 		if (playerPos.y == -1) playerPos.y++
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 19) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || tileData[playerPos.y][playerPos.x] == 19) {
 			playerPos.y++
 			if (hasPickaxe) {
 				hasPickaxe = false
@@ -653,7 +653,7 @@ function move(dir) {
 	if (dir == 'down') {
 		playerPos.y++
 		if (playerPos.y == tileData.length) playerPos.y--
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 17) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || tileData[playerPos.y][playerPos.x] == 17) {
 			playerPos.y--
 			if (hasPickaxe) {
 				hasPickaxe = false
@@ -705,7 +705,7 @@ function move(dir) {
 	if (dir == 'left') {
 		playerPos.x--
 		if (playerPos.x == -1) playerPos.x++
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 20) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || tileData[playerPos.y][playerPos.x] == 20) {
 			playerPos.x++
 			if (hasPickaxe) {
 				hasPickaxe = false
@@ -757,7 +757,7 @@ function move(dir) {
 	if (dir == 'right') {
 		playerPos.x++
 		if (playerPos.x == tileData[0].length) playerPos.x--
-		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || ileData[playerPos.y][playerPos.x] == 18) {
+		if (tileData[playerPos.y][playerPos.x] == 1 || tileData[playerPos.y][playerPos.x] == 7 || tileData[playerPos.y][playerPos.x] == 18) {
 			playerPos.x--
 			if (hasPickaxe) {
 				hasPickaxe = false

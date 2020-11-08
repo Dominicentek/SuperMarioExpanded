@@ -41,7 +41,7 @@ var data = {
 		"pickaxe": new Image,
 		"oneways": {
 			"up": new Image,
-			"ĺeft": new Image,
+			"left": new Image,
 			"down": new Image,
 			"right": new Image
 		},
